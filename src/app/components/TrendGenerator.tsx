@@ -77,9 +77,6 @@ export default function TrendGenerator() {
         const data = await response.json();
         throw new Error(data.error || 'Upload failed');
       }
-      
-      // Refresh recent images after successful upload
-      // fetchRecentImages();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload image');
     } finally {
