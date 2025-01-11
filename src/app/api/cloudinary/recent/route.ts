@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
+import { NextApiRequest } from 'next';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,14 +8,20 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function GET() {
+export async function GET(req: NextApiRequest) {
+  // const {skip, limit} = req.query;
+
   try {
     const result = await cloudinary.search
       .expression('folder:fakenewscentral')
       .sort_by('created_at', 'desc')
+      .with_field('context')
+      .with_field('tags')
       .max_results(10)
       .execute();
 
+    console.log("has recent images", result);
+    
     return NextResponse.json(result.resources);
   } catch (error) {
     console.error('Cloudinary fetch error:', error);

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Wand2, History } from 'lucide-react';
+import {Card} from './Card';
 
 interface GenerationResult {
   sentence: string;
@@ -15,6 +16,11 @@ interface CloudinaryImage {
     alt?: string;
   };
 }
+type ImageCardProps = {
+  url: string;
+  title: string;
+  tags: string[];
+};
 
 export default function TrendGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +29,8 @@ export default function TrendGenerator() {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [recentImages, setRecentImages] = useState<CloudinaryImage[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [news, setNews] = useState<ImageCardProps[]>([]);
+  const [loadIndex, setLoadIndex] = useState<number>(10);
 
   const generateContent = async () => {
     setIsLoading(true);
@@ -65,9 +73,6 @@ export default function TrendGenerator() {
         }),
       });
 
-      console.log("UPLOAD", response);
-      
-      
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || 'Upload failed');
@@ -90,7 +95,7 @@ export default function TrendGenerator() {
       const response = await fetch('/api/cloudinary/recent');
       const data = await response.json();
       
-      if (!response.ok) throw new Error('Failed to fetch recent images');
+      console.log("has images", data);
       
       setRecentImages(data);
     } catch (err) {
@@ -101,7 +106,7 @@ export default function TrendGenerator() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-xl p-6">
+    <div >
       <div className="flex gap-4 mb-6">
         <button
           onClick={generateContent}
@@ -120,35 +125,14 @@ export default function TrendGenerator() {
       )}
 
       {result && (
+        
         <div className="mt-6 space-y-4">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-700 mb-2">Trending Topics:</h3>
-            <div className="flex flex-wrap gap-2">
-              {result.trends.map((trend, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm"
-                >
-                  {trend}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-700 mb-2">Generated Sentence:</h3>
-            <p className="text-gray-600">{result.sentence}</p>
-          </div>
-
-          <div className="mt-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Generated Image:</h3>
-            <img
-              src={result.imageUrl}
-              alt={result.sentence}
-              className="w-full rounded-lg shadow-md mb-4"
+          <Card 
+              url={result.imageUrl}
+              title={result.sentence}
+              tags={result.trends}
             />
-          </div>
-        </div>
+         </div>
       )}
 
       {recentImages.length > 0 && (

@@ -50,7 +50,7 @@ export async function GET() {
     });
 
     return NextResponse.json({
-      chosenTrends,
+      trends,
       sentence,
       imageUrl: image.data[0].url,
     });
