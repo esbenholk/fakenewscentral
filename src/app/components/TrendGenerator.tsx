@@ -183,7 +183,7 @@ export default function TrendGenerator() {
         >
           <option value="DK">DK</option>
           <option value="DE">DE</option>
-          <option value="UK">UK</option>
+          <option value="GB">GB</option>
           <option value="US">US</option>
         </select>
         <button
