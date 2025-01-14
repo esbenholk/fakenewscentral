@@ -1,8 +1,9 @@
 import TrendGenerator from './components/TrendGenerator';
+import '../index.css'; // Import global CSS
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-100 p-8">
+    <main className="dont look under the hood">
         <TrendGenerator />
     </main>
   );
