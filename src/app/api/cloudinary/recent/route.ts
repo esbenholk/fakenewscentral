@@ -7,8 +7,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function GET() {
+type Image = {
+  id: string;
+  url: string;
+  title: string;
+  tags: string[];
+  date: string;
+};
+
+export async function GET(request: Request) {
   // const {skip, limit} = req.query;
+  const url = new URL(request.url);
+  const skipNumber = parseInt(url.searchParams.get('skip') as string, 10) || 0;
+  const limitNumber = parseInt(url.searchParams.get('limit') as string, 10) || 10;
 
   try {
     const result = await cloudinary.search
@@ -16,12 +27,18 @@ export async function GET() {
       .sort_by('created_at', 'desc')
       .with_field('context')
       .with_field('tags')
-      .max_results(10)
+      .max_results(skipNumber + limitNumber)
       .execute();
 
-    console.log("has recent images", result);
+    const images: Image[] = result.resources.slice(skipNumber, skipNumber + limitNumber).map((image: any) => ({
+      id: image.asset_id,
+      url: image.secure_url,
+      title: image.context?.alt || 'Untitled',
+      tags: image.tags,
+      date: image.created_at
+  }));
     
-    return NextResponse.json(result.resources);
+    return NextResponse.json(images);
   } catch (error) {
     console.error('Cloudinary fetch error:', error);
     return NextResponse.json(

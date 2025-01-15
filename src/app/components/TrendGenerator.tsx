@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Wand2, History } from 'lucide-react';
 import {Card} from './Card';
 
 interface GenerationResult {
@@ -10,12 +9,7 @@ interface GenerationResult {
   trends: string[];
 }
 
-// interface CloudinaryImage {
-//   secure_url: string;
-//   context?: {
-//     alt?: string;
-//   };
-// }
+
 type ImageCardProps = {
   url: string;
   title: string;
@@ -55,14 +49,13 @@ export default function TrendGenerator() {
 
     // Run fetchRecentImages on component mount
   useEffect(() => {
-      fetchRecentImages();
+      loadContent();
   }, []);
 
-  useEffect(() => {
-    console.log(news);
-    
-  }, [news]);
-  
+  const loadContent = async () =>{
+    await fetchRecentImages();
+  }
+
   const generateContent = async () => {
     setIsLoading(true);
     setError(null);
@@ -81,14 +74,8 @@ export default function TrendGenerator() {
         date: getTodaysDate(),
         geo: data.geo 
       };
-      uploadToCloudinary(data);
       _tempNews.unshift(_imageCardProp);
-      setNews(_tempNews);
-
-      console.log("new news", _imageCardProp);
-      
-      
-
+      setNews(_tempNews);      
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -98,37 +85,6 @@ export default function TrendGenerator() {
     }
   };
 
-  async function uploadToCloudinary ( imageData: GenerationResult) {
-    if (!imageData) return;
-    
-    setIsUploading(true);
-    setError(null);
-    
-    try {
-      const response = await fetch('/api/cloudinary/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageUrl: imageData.imageUrl,
-          sentence: imageData.sentence,
-          alt: imageData.trends.join(', '),
-          title: imageData.sentence,
-          tags: imageData.trends
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Upload failed');
-      } 
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload image');
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const fetchRecentImages = async () => {
     setIsFetchingRecent(true);
@@ -141,12 +97,14 @@ export default function TrendGenerator() {
       if(data){
         for (let index = 0; index < data.length; index++) {
           const element = data[index];  
+          console.log("HAS RECENT IMAGE", element, element.tags);
+          
           const _imageCardProp: ImageCardProps = {
-            title: element.context?.alt,
-            url: element.secure_url,
+            title: element.title,
+            url: element.url,
             tags: element.tags, 
-            date: formatDateString(element.created_at),
-            geo: ""
+            date: formatDateString(element.date),
+            geo: element.tags[element.tags.length-1] 
           };
           _tempNews.push(_imageCardProp);
         }
@@ -208,6 +166,7 @@ export default function TrendGenerator() {
                   title={card.title}
                   tags={card.tags}
                   date={card.date}
+                  geo={card.geo}
                 />
               </div>
             ))}

@@ -6,9 +6,47 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+interface GenerationResult {
+  sentence: string;
+  imageUrl: string;
+  trends: string[];
+  geo: string;
+}
+async function uploadToCloudinary ( imageData: GenerationResult) {
+  if (!imageData) return;
+    
+  try {
+    imageData.trends.push(imageData.geo)
+    const response = await fetch(`${process.env.BASE_URL}/api/cloudinary/upload`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        imageUrl: imageData.imageUrl,
+        sentence: imageData.sentence,
+        alt: imageData.trends.join(', '),
+        title: imageData.sentence,
+        tags: imageData.trends
+      }),
+    });
+
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Upload failed');
+    } 
+  } catch (err) {
+    console.log("fails upload to cloud", err);
+
+  } finally {
+    console.log("ends upload to cloud");
+
+  }
+};
+
 export async function GET(request: Request) {
   try {
-
     const url = new URL(request.url);
     const geo = url.searchParams.get('geo') || 'US';
     const keyword = url.searchParams.get('keyword') || 'zuckerberg';
@@ -46,8 +84,7 @@ export async function GET(request: Request) {
     });
 
     const sentence = completion.choices[0].message.content || '';
-
-    console.log("GENERATES IMAGE", chosenTrends, trends, sentence);
+    sentence.replace('"', '');
     
     // Generate image using DALL-E
     const image = await openai.images.generate({
@@ -59,12 +96,17 @@ export async function GET(request: Request) {
 
     trends = chosenTrends;
 
-    return NextResponse.json({
+    const data = {
       trends,
       sentence,
-      imageUrl: image.data[0].url,
+      imageUrl: image.data[0].url || 'imageurlplaceholder',
       geo: geo
-    });
+    };
+    
+    uploadToCloudinary(data);
+
+    return NextResponse.json(data);
+
   } catch (error) {
     console.error('Generation error:', error);
     return NextResponse.json(

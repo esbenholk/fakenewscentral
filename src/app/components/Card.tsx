@@ -4,14 +4,15 @@ type ImageCardProps = {
     url: string;
     title: string;
     tags: string[];
-    date: string
+    date: string;
+    geo: string;
   };
   
-export const Card: React.FC<ImageCardProps> = ({ url, title, tags, date }) => {
+export const Card: React.FC<ImageCardProps> = ({ url, title, tags, date, geo }) => {
     return (
         <>
             <div>
-                <span className="Date">{date}</span>
+                <span className="Date">{geo}__{date}</span>
                 <img src={url} alt={title}/>
             </div>
             <div className="Info">
