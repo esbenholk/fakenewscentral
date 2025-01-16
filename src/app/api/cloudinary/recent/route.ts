@@ -18,8 +18,8 @@ type Image = {
 export async function GET(request: Request) {
   // const {skip, limit} = req.query;
   const url = new URL(request.url);
-  const skipNumber = parseInt(url.searchParams.get('skip') as string, 10) || 0;
-  const limitNumber = parseInt(url.searchParams.get('limit') as string, 10) || 10;
+  const skipNumber = parseInt(url.searchParams.get('skip') as string) || 0;
+  const limitNumber = parseInt(url.searchParams.get('limit') as string) || 10;
 
   try {
     const result = await cloudinary.search
