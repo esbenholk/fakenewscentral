@@ -43,7 +43,7 @@ export default function TrendGenerator() {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [news, setNews] = useState<ImageCardProps[]>([]);
-  const [loadIndex, setLoadIndex] = useState<number>(10);
+  const [loadIndex, setLoadIndex] = useState<number>(0);
   const [region, setRegion] = useState<string>('DK');
   const [keyword, setKeyword] = useState<string>('');
 
@@ -91,9 +91,9 @@ export default function TrendGenerator() {
     setError(null);
     
     try {
-      const response = await fetch('/api/cloudinary/recent');
+      const response = await fetch(`/api/cloudinary/recent?skip=${loadIndex}limit=${10}`);
       const data = await response.json();
-      let _tempNews = [];
+      let _tempNews = news;
       if(data){
         for (let index = 0; index < data.length; index++) {
           const element = data[index];  
@@ -108,12 +108,13 @@ export default function TrendGenerator() {
           };
           _tempNews.push(_imageCardProp);
         }
-        if(news.length > 0){
-          for (let index = 0; index < news.length; index++) {
-            _tempNews.push(news[index]);
-          }
-        }
+        // if(news.length > 0){
+        //   for (let index = 0; index < news.length; index++) {
+        //     _tempNews.push(news[index]);
+        //   }
+        // }
         setNews(_tempNews);
+        setLoadIndex(loadIndex+10)
       } else {
         setIsFetchingRecent(false);
       }
@@ -173,14 +174,12 @@ export default function TrendGenerator() {
         </>
       )}
 
-      {/* <button
+      <button
           onClick={fetchRecentImages}
           disabled={isFetchingRecent}
-          className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <History className="w-5 h-5" />
-          {isFetchingRecent ? 'Loading...' : 'Recent Images'}
-        </button> */}
+          className="Button Loadmore"        >
+          {isFetchingRecent ? 'Obtaining...' : 'Obtain older stories'}
+        </button>
     </div>
   );
 }
