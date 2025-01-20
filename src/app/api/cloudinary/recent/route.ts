@@ -30,6 +30,9 @@ export async function GET(request: Request) {
       .max_results(skipNumber + limitNumber)
       .execute();
 
+    console.log("has all recent images", result);
+    
+
     const images: Image[] = result.resources.slice(skipNumber, skipNumber + limitNumber).map((image: any) => ({
       id: image.asset_id,
       url: image.secure_url,

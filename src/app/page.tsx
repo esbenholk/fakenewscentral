@@ -13,12 +13,12 @@ export default function Home() {
         <div className='Tickers'>
         <Ticker duration={10}>
             {colors.map((item, index) => (
-              <h1>MEAN</h1>))
+              <h1 key={index}>MEAN</h1>))
             }
         </Ticker>
         <Ticker duration={12}>
             {colors.map((item, index) => (
-              <h1>NEWS</h1>))
+              <h1 key={index}>NEWS</h1>))
             }
         </Ticker>
         </div>

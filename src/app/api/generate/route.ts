@@ -48,9 +48,9 @@ async function uploadToCloudinary ( imageData: GenerationResult) {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const geo = url.searchParams.get('geo') || 'US';
-    const keyword = url.searchParams.get('keyword') || 'zuckerberg';
-    // Get trending topics
+    const geo = url.searchParams.get('geo') || 'DK';
+    const keyword = url.searchParams.get('keyword') || '';
+    const additionalKeywords = ["zuckerberg", "elon musk", "bezos", "internet", "social media", "world war 3", "algorithms", "technology", "arteficial intelligence", "AI", "fake news", "truth", "community notes", "twitter", "oligarchy", "dictatorship", "artist", "generative media", "the zuck", "the image Elon Musk wants the internet to forget", "meme", "pepe"]  // Get trending topics
     const trendData = await googleTrends.dailyTrends({
       geo: geo,
     });
@@ -66,19 +66,29 @@ export async function GET(request: Request) {
       amount = trends.length;
     }
     let chosenTrends = [];
-    for (let index = 0; index < amount; index++) {
-      var item = trends[Math.floor(Math.random()*trends.length)]; 
+    for (let i = 0;i < amount; i++) {
+      const index = Math.floor(Math.random()*trends.length)
+      var item = trends[index]; 
+      if (index > -1) { // only splice array when item is found
+        trends.splice(index, 1); // 2nd parameter means remove one item only
+      }
       chosenTrends.push(item);
     }
+    if(keyword != ""){
+      chosenTrends.push(keyword);
+    } else {
+      chosenTrends.push(additionalKeywords[Math.floor(Math.random()*additionalKeywords.length)])
+    }
+  
 
-    chosenTrends.push(keyword);
+
 
     // Generate sentence using OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{
         role: "user",
-        content: `Create an alarming news headline that naturally incorporates some or all of these trending topics: ${chosenTrends.join(', ')}`
+        content: `using maximum 100 characters, Create an alarming news headline that naturally incorporates some or all of these trending topics: ${chosenTrends.join(', ')}`
       }],
       max_tokens: 100,
     });
@@ -89,7 +99,7 @@ export async function GET(request: Request) {
     // Generate image using DALL-E
     const image = await openai.images.generate({
       model: "dall-e-3",
-      prompt: sentence,
+      prompt: `Create a photorealistic image that fits this headline:  ${sentence}`,
       n: 1,
       size: "1024x1024",
     });
