@@ -5,7 +5,11 @@ export async function GET(request: Request) {
 
   try {
 
-    const recentImagesResponse = await fetch(`${process.env.BASE_URL}/api/cloudinary/recent?limit=${encodeURIComponent(100)}&skip=${encodeURIComponent(0)}`);
+    const url = new URL(request.url);
+    const skipNumber = parseInt(url.searchParams.get('skip') as string) || 0;
+    const limitNumber = parseInt(url.searchParams.get('limit') as string) || 100;
+
+    const recentImagesResponse = await fetch(`${process.env.BASE_URL}/api/cloudinary/recent?limit=${encodeURIComponent(limitNumber)}&skip=${encodeURIComponent(skipNumber)}`);
     const data = await recentImagesResponse.json();
     
     console.log("CALLS 100 IMAGES", recentImagesResponse);
