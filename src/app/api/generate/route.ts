@@ -16,6 +16,9 @@ async function uploadToCloudinary ( imageData: GenerationResult) {
   if (!imageData) return;
     
   try {
+
+    console.log("uploads image", imageData);
+
     imageData.trends.push(imageData.geo)
     const response = await fetch(`${process.env.BASE_URL}/api/cloudinary/upload`, {
       method: 'POST',
@@ -34,7 +37,10 @@ async function uploadToCloudinary ( imageData: GenerationResult) {
 
     if (!response.ok) {
       const data = await response.json();
+      console.log("fails upload to cloud", data);
+
       throw new Error(data.error || 'Upload failed');
+
     } 
   } catch (err) {
     console.log("fails upload to cloud", err);
@@ -54,6 +60,10 @@ export async function GET(request: Request) {
     const trendData = await googleTrends.dailyTrends({
       geo: geo,
     });
+
+
+    console.log("has api call:", url);
+    
     
     let trends = JSON.parse(trendData)
       .default.trendingSearchesDays[0]
@@ -81,7 +91,8 @@ export async function GET(request: Request) {
     }
   
 
-
+    console.log("has google trends", chosenTrends);
+    
 
     // Generate sentence using OpenAI
     const completion = await openai.chat.completions.create({
@@ -93,8 +104,13 @@ export async function GET(request: Request) {
       max_tokens: 100,
     });
 
+
+
     const sentence = completion.choices[0].message.content || '';
     sentence.replace('"', '');
+
+    console.log("has openai sentence", sentence);
+
     
     // Generate image using DALL-E
     const image = await openai.images.generate({
@@ -103,6 +119,9 @@ export async function GET(request: Request) {
       n: 1,
       size: "1024x1024",
     });
+
+    console.log("has openai image", image);
+
 
     trends = chosenTrends;
 
@@ -113,8 +132,11 @@ export async function GET(request: Request) {
       geo: geo
     };
     
+ 
+    
     uploadToCloudinary(data);
 
+    console.log("returns:", data);
     return NextResponse.json(data);
 
   } catch (error) {
