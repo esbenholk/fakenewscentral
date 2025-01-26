@@ -117,7 +117,7 @@ export async function GET(request: Request) {
       model: "dall-e-3",
       prompt: `Create a photorealistic image that fits this headline:  ${sentence}`,
       n: 1,
-      size: "1024x1024",
+      size: "256x256",
     });
 
     console.log("has openai image", image);
