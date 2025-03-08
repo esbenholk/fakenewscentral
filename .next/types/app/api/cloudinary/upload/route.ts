@@ -1,4 +1,4 @@
-// File: C:\Users\esben\Downloads\fakenewscentral\project\src\app\api\cloudinary\upload\route.ts
+// File: D:\fakenewscentral\project\src\app\api\cloudinary\upload\route.ts
 import * as entry from '../../../../../../src/app/api/cloudinary/upload/route.js'
 import type { NextRequest } from 'next/server.js'
 

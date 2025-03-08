@@ -54,29 +54,59 @@ async function uploadToCloudinary ( imageData: GenerationResult) {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const geo = url.searchParams.get('geo') || 'DK';
+    const geo = url.searchParams.get('geo') || 'DE';
     const keyword = url.searchParams.get('keyword') || '';
+    let trends = [
+      "election", "president", "economy", "inflation", "stock market",
+      "cryptocurrency", "interest rates", "banking crisis", "job market", "unemployment",
+      "healthcare", "pandemic", "vaccine", "mental health", "drug prices",
+      "education", "college debt", "student loans", "school policies", "teacher strikes",
+      "technology", "AI", "machine learning", "cybersecurity", "big data",
+      "climate change", "global warming", "carbon emissions", "renewable energy", "wildfires",
+      "natural disasters", "hurricane", "earthquake", "flood", "drought",
+      "sports", "Olympics", "FIFA", "NBA", "NFL",
+      "entertainment", "Hollywood", "blockbuster", "Netflix", "streaming wars",
+      "social media", "Twitter", "Facebook", "TikTok", "influencers",
+      "crime", "police", "gun control", "mass shooting", "drug cartel",
+      "immigration", "border control", "refugees", "asylum", "migrant crisis",
+      "war", "conflict", "military", "terrorism", "diplomacy",
+      "science", "space exploration", "NASA", "quantum computing", "genetics",
+      "medicine", "cancer research", "biotech", "medical breakthrough", "public health",
+      "real estate", "housing market", "mortgage rates", "rent control", "urban development",
+      "transportation", "electric vehicles", "self-driving cars", "public transit", "airlines",
+      "fashion", "luxury brands", "fast fashion", "sustainability", "trend forecast",
+      "business", "startup funding", "corporate layoffs", "market trends", "IPO",
+      "legal", "Supreme Court", "legislation", "human rights", "privacy laws",
+      "food", "agriculture", "supply chain", "nutrition", "plant-based diet",
+      "energy", "oil prices", "nuclear power", "offshore wind", "solar farms",
+      "culture", "artificial intelligence ethics", "cancel culture", "censorship", "free speech",
+      "space", "Mars mission", "asteroid mining", "exoplanets", "space tourism"
+    ];
+
+    
+
     const additionalKeywords = ["zuckerberg", "elon musk", "bezos", "internet", "social media", "world war 3", "algorithms", "technology", "arteficial intelligence", "AI", "fake news", "truth", "community notes", "twitter", "oligarchy", "dictatorship", "artist", "generative media", "the zuck", "the image Elon Musk wants the internet to forget", "meme", "pepe"]  // Get trending topics
-    const trendData = await googleTrends.dailyTrends({
-      geo: geo,
-    });
+    // const trendData = await googleTrends.dailyTrends({
+    //   geo: geo,
+    // });
 
 
-    console.log("has api call:", url);
+    console.log("has trend data");
     
-    
-    let trends = JSON.parse(trendData)
-      .default.trendingSearchesDays[0]
-      .trendingSearches
-      .slice(0, 10)
-      .map((trend: any) => trend.title.query);
 
-    let amount = 3;
-    if (trends.length < amount) {
-      amount = trends.length;
-    }
+    // let trends = JSON.parse(trendData)
+    //   .default.trendingSearchesDays[0]
+    //   .trendingSearches
+    //   .slice(0, 10)
+    //   .map((trend: any) => trend.title.query);
+
+    // console.log("has google trends", trends);
+    // let amount = 3;
+    // if (trends.length < amount) {
+    //   amount = trends.length;
+    // }
     let chosenTrends = [];
-    for (let i = 0;i < amount; i++) {
+    for (let i = 0;i < 3; i++) {
       const index = Math.floor(Math.random()*trends.length)
       var item = trends[index]; 
       if (index > -1) { // only splice array when item is found
@@ -91,7 +121,7 @@ export async function GET(request: Request) {
     }
   
 
-    console.log("has google trends", chosenTrends);
+    console.log("has sorted google trends", chosenTrends);
     
 
     // Generate sentence using OpenAI
